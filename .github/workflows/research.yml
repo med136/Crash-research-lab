@@ -40,6 +40,10 @@ jobs:
           ACTUAL="$(git hash-object data/btc_source.csv)"
           test "$ACTUAL" = "e633106c023e80f48e404574952ed7b1f8bfe650"
           python -c "from cryptolab.import_daily import import_daily; print(import_daily('data/btc_source.csv','data/btc_daily.csv'))"
+      - name: Smoke-test official Binance BTC/ETH daily archives with checksums
+        run: |
+          python -m cryptolab.binance_bulk --symbol BTCUSDT --start 2025-01 --end 2025-01 --output data/btc_official_sample.csv > reports/binance_btc_manifest.json
+          python -m cryptolab.binance_bulk --symbol ETHUSDT --start 2025-01 --end 2025-01 --output data/eth_official_sample.csv > reports/binance_eth_manifest.json
       - name: Paired BTC strategy comparison (not deployable)
         run: python -m cryptolab.cli paired --input data/btc_daily.csv > reports/paired.json
       - name: Adverse costs and sign-test diagnostic
