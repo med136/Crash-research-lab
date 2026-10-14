@@ -12,6 +12,7 @@ from .stress import stress_test
 from .paired import paired_windows
 from .audit_stats import cost_scenarios
 from .paper import new_state,apply_new_candles,save_state,load_state,summary
+from .volpaper import once as volatility_paper_once
 
 def main():
     ap=argparse.ArgumentParser()
@@ -46,6 +47,11 @@ def main():
     e=sub.add_parser("evaluate")
     e.add_argument("--input",required=True)
     e.add_argument("--capital",type=float,default=1000)
+    vp=sub.add_parser("paper-vol")
+    vp.add_argument("--symbol",choices=["BTCUSDT","ETHUSDT"],required=True)
+    vp.add_argument("--state",required=True)
+    vp.add_argument("--capital",type=float,default=1000.)
+    vp.add_argument("--input",default=None,help="offline CSV replay only")
     p=sub.add_parser("paper")
     p.add_argument("--symbol",choices=["BTCUSDT","ETHUSDT"],default="BTCUSDT")
     p.add_argument("--interval",choices=list(INTERVAL_MS),default="1h")
@@ -74,6 +80,8 @@ def main():
         print(json.dumps(select_and_test(load(args.input),initial=args.capital),indent=2))
     elif args.mode=="evaluate":
         print(json.dumps(evaluate(load(args.input),capital=args.capital),indent=2))
+    elif args.mode=="paper-vol":
+        print(json.dumps(volatility_paper_once(symbol=args.symbol,path=args.state,capital=args.capital,input_csv=args.input),indent=2))
     else:
         statepath=Path(args.state)
         candles=download(args.symbol,args.interval)
