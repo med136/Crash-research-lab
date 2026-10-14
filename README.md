@@ -183,3 +183,23 @@ Open `reports/timeframes_panel.html` to filter pairs and frames in French or Eng
 **Important methodology:** 90 x 5-minute candles cover **7.5 hours**, whereas 90 x 4-hour candles cover **15 days**. Raw per-window returns must **never** be ranked between these different timeframes; only compare each strategy with its same-window benchmark. The technical strategy uses *200/30/30 bars*, not calendar days, for each frame. Its 30-bar log-return volatility is annualized with the correct frequency (5m = 105120 bars/year, 15m = 35040, 1h = 8760, 4h = 2190; 1d = 365).
 
 The test is not a high-frequency live execution simulator: it omits realistic spread dynamics, depth, market impact and partial fills. Small intervals may generate frequent transactions and are sensitive to underestimated fees. Research remains paper-only, without exchange credentials, real orders, or a claim that any algorithm is profitable.
+
+
+## User-funded $100 research: 1, 3, 6, and 12 months
+
+The user's **proposed $100** is not transferred to us or deployed. This offline tool shows *what past independent $100 wallets would have become*, under fixed public-market assumptions; it **does not predict** how much an actual $100 investment will be worth.
+
+```bash
+python -m cryptolab.capital100 \
+  --symbols BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,ADAUSDT,DOGEUSDT,LINKUSDT,AVAXUSDT,DOTUSDT,LTCUSDT,TRXUSDT,BCHUSDT,ATOMUSDT,NEARUSDT \
+  --end 2026-09-30 --bars 1000 --min-success 12 \
+  --output reports/100usd_horizons.json --panel reports/100usd_horizons_panel.html
+```
+
+Open the FR-first/EN-switch `reports/100usd_horizons_panel.html` dashboard and select asset, 30/90/180/365-day approximate horizon, strategy, and base/doubled/adverse costs.
+
+Fixed, non-optimized, research-only candidates: all cash, spot buy-and-hold, SMA20/60, SMA50/200, Donchian-like 55/20 breakout, capped 60%-family volatility trend with 45% volatility target, and a defensive rule-based ensemble. These are **heuristics, not trained models**. Every candle's entry uses completed previous-close indicators and hypothetical next-open fills; no leverage; transaction fees, slippage, a modeled $5 minimum notional and terminal exit costs are charged. Each chronological nonoverlapping historical window restarts with **one $100 virtual wallet per tested asset** — NOT a single $100 portfolio invested simultaneously in 15 coins.
+
+For each horizon, report mean/median/worst/best/p10/p90 final USD balances, count of positive windows, paired excess over buy-and-hold, drawdown, and turnover. **There are only 2 independent annual windows per asset in 1000 daily bars**, so annual forecasts or win probabilities are not justified. Multiple testing across 15 correlated assets and 7 strategies would overstate statistical evidence if one simply selected the historic winner.
+
+No crypto funds, wallet keys, real orders, or deployments occur. A strategy must undergo genuinely prospective paper evaluation and exchange-filter checks before any further consideration.
