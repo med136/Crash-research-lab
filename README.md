@@ -36,3 +36,27 @@ No leverage, exchange secrets, real orders or deposits. Only run with money-free
 ## Release status
 
 Local unit tests: 13 tests passed in the development environment. GitHub CI and live exchange data availability need independent verification. No validated profitable strategy and no AI model have been delivered.
+
+
+## Reproducing the 2026-10-14 BTC history audit
+
+A publicly published third-party CSV has 3,343 BTC daily candles (2017-08-17 to 2026-10-11); record and SHA in `reports/btc_daily_holdout_2026-10-14.md`.
+
+```bash
+curl -fL https://raw.githubusercontent.com/jptrustlearning/btc/e633106c023e80f48e404574952ed7b1f8bfe650/btc_prices.csv -o data/btc_source.csv
+python -c "from cryptolab.import_daily import import_daily; print(import_daily('data/btc_source.csv','data/btc_daily.csv'))"
+cryptolab evaluate --input data/btc_daily.csv --capital 1000
+```
+
+The pinned URL above uses a Git blob SHA, which may not be directly fetchable as a Git revision on every Git hosting route; if GitHub returns 404, fetch `main/btc_prices.csv` and verify content against the recorded source blob SHA before comparing results. This is a third-party historical archive, not a live market stream. Use the close-of-day data only after the daily bar has completed.
+
+## Acceptance gates (not yet passed)
+
+- All GitHub Actions jobs green on the final commit.
+- Independent verification of real market downloads and deterministic source provenance.
+- Validated forward-only paper trading on a VPS with daily monitoring and a loss/incident log.
+- Multiple untouched rolling test periods and different market regimes.
+- Net performance versus buy-and-hold, cash, and fees/slippage stress tests.
+- No real trading until local legal requirements are verified and the user explicitly authorizes it.
+
+A numeric `10/10` or a `profitable bot` designation is inappropriate until all relevant gates have real evidence.
