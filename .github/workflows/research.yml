@@ -44,6 +44,14 @@ jobs:
         run: |
           python -m cryptolab.binance_bulk --symbol BTCUSDT --start 2025-01 --end 2025-01 --output data/btc_official_sample.csv > reports/binance_btc_manifest.json
           python -m cryptolab.binance_bulk --symbol ETHUSDT --start 2025-01 --end 2025-01 --output data/eth_official_sample.csv > reports/binance_eth_manifest.json
+      - name: Offline daily volatility paper wallet restart test (NO live orders)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cryptolab.cli paper-vol --symbol BTCUSDT --state data/btc_virtual_wallet.json --input data/btc_daily.csv > reports/paper_first.json
+          python -m cryptolab.cli paper-vol --symbol BTCUSDT --state data/btc_virtual_wallet.json --input data/btc_daily.csv > reports/paper_second.json
+          cmp reports/paper_first.json reports/paper_second.json
+          python -c "import json; p=json.load(open('reports/paper_second.json')); assert p['paper_only'] is True and p['executions']==0 and p['source']=='csv_replay'"
       - name: Paired BTC strategy comparison (not deployable)
         run: python -m cryptolab.cli paired --input data/btc_daily.csv > reports/paired.json
       - name: Adverse costs and sign-test diagnostic
