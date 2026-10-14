@@ -7,6 +7,7 @@ from .market import download,save,load,INTERVAL_MS
 from .engine import backtest
 from .research import evaluate
 from .strategies import select_and_test
+from .walk_forward import walk_forward
 from .paper import new_state,apply_new_candles,save_state,load_state,summary
 
 def main():
@@ -21,6 +22,11 @@ def main():
     b.add_argument("--fast",type=int,default=10)
     b.add_argument("--slow",type=int,default=30)
     b.add_argument("--capital",type=float,default=1000)
+    wf=sub.add_parser("walk-forward")
+    wf.add_argument("--input",required=True)
+    wf.add_argument("--initial-train",type=int,default=900)
+    wf.add_argument("--test-size",type=int,default=180)
+    wf.add_argument("--step",type=int,default=180)
     x=sub.add_parser("research")
     x.add_argument("--input",required=True)
     x.add_argument("--capital",type=float,default=1000)
@@ -43,6 +49,8 @@ def main():
         result=asdict(backtest(load(args.input),initial=args.capital,fast=args.fast,slow=args.slow))
         result.pop("curve")
         print(json.dumps(result,indent=2))
+    elif args.mode=="walk-forward":
+        print(json.dumps(walk_forward(load(args.input),initial_train=args.initial_train,test_size=args.test_size,step=args.step),indent=2))
     elif args.mode=="research":
         print(json.dumps(select_and_test(load(args.input),initial=args.capital),indent=2))
     elif args.mode=="evaluate":
