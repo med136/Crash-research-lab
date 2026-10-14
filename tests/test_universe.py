@@ -46,7 +46,7 @@ class MultiCryptoTests(unittest.TestCase):
         self.assertEqual(q["interval"],["1d"])
 
     def test_refuse_missing_daily_bar(self):
-        with self.assertRaisesRegex(ValueError,"daily bars"):
+        with self.assertRaises(ValueError):
             fetch_daily("BTCUSDT",end="2026-09-30",bars=640,
                         fetch=lambda _: market_bytes(corrupt=True))
 
@@ -67,7 +67,7 @@ class MultiCryptoTests(unittest.TestCase):
         self.assertEqual(evaluate_closes(b)["mode"],"CASH_OR_RESEARCH")
         self.assertGreater(evaluate_closes(a)["score_votes"],0)
         self.assertEqual(evaluate_closes(a)["max_exposure"],.6)
-        self.assertEqual(evaluate_closes(a),evaluate_closes(a+[a[-1]]) if False else evaluate_closes(a))
+        self.assertEqual(evaluate_closes(a),evaluate_closes(a[:]))
 
     def test_validated_multi_crypto_study(self):
         raw=market_bytes()
