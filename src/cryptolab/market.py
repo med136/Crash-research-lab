@@ -1,6 +1,7 @@
 """Download public completed OHLCV candles; no credentials or trading API."""
 import csv
 import json
+import math
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -34,8 +35,22 @@ def download(symbol="BTCUSDT", interval="1h", n=1000):
 def validate(candles):
     if len(candles)<60:
         raise ValueError("Need >=60 completed candles")
-    if any(candles[i]["time"]>=candles[i+1]["time"] for i in range(len(candles)-1)):
-        raise ValueError("Unsorted or duplicate candles")
+    previous=None
+    for candle in candles:
+        try:
+            t=candle["time"]
+            o,h,l,c,v=(candle[k] for k in ("open","high","low","close","volume"))
+        except (KeyError,TypeError) as exc:
+            raise ValueError("Malformed OHLCV candle") from exc
+        if not isinstance(t,int) or isinstance(t,bool):
+            raise ValueError("Timestamp must be an integer in milliseconds")
+        if previous is not None and t<=previous:
+            raise ValueError("Unsorted or duplicate candles")
+        previous=t
+        if not all(isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) for x in (o,h,l,c,v)):
+            raise ValueError("Non-finite or non-numeric OHLCV")
+        if l<=0 or v<0 or h<l or not(l<=o<=h and l<=c<=h):
+            raise ValueError("Invalid OHLCV envelope")
 
 def save(candles,path):
     target=Path(path);target.parent.mkdir(parents=True,exist_ok=True)
