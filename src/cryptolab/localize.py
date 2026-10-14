@@ -162,7 +162,11 @@ def bilingual_html(html: str) -> str:
  "Cash only":"Liquidités seulement",
  "Defensive ensemble":"Ensemble défensif",
  "Breakout 55/20":"Cassure 55/20",
- "Volatility Trend":"Tendance à volatilité ciblée"
+ "Volatility Trend":"Tendance à volatilité ciblée",
+ "1 month (30 days)":"1 mois (30 jours)",
+ "3 months (90 days)":"3 mois (90 jours)",
+ "6 months (180 days)":"6 mois (180 jours)",
+ "1 year (365 days)":"1 an (365 jours)"
  };
  let language="fr";
  const memo=new WeakMap();
