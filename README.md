@@ -71,3 +71,14 @@ cryptolab walk-forward --input data/btc_daily.csv --initial-train 900 --test-siz
 For each fold, select volatility target only from earlier historical bars and test it on the next 180 completed daily candles. No portfolio state is carried between folds; both the strategy and passive baseline restart with the same virtual capital. Inspect individual fold results, not just average performance.
 
 **Release blocker:** GitHub Actions status for this change has not been verified; public-data ingestion and live paper execution still need end-to-end checking. Historical returns are hypothetical and not guarantees.
+
+
+## Risk-matched paired strategy evaluation
+
+```bash
+cryptolab paired --input data/btc_daily.csv --first 900 --days 180
+```
+
+This evaluates the volatility trend model and **signal-free constant BTC allocations (25%, 50%, 75%)**, plus one-entry/one-exit passive BTC in identical chronological 180-bar windows. Costs are applied to all simulated fills. This is a more defensible test of whether trend timing adds more than reduced BTC exposure. The numerical output still requires verification on a clean local checkout and independently sourced prices. Do not call it proof of a profitable edge.
+
+See `reports/exposure_controls_2026-10-14.md` for a historical exploratory comparison and caveats.
