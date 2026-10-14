@@ -59,8 +59,12 @@ class TimeframeTests(unittest.TestCase):
     def test_intraday_volatility_correct_scale(self):
         bars,_=fetch_bars("BTCUSDT","5m",end="2026-09-30",bars=640,
                           fetch=lambda _:synthetic(frame="5m"))
-        # Same candle data, different annualization scales. Larger number
-        # of candles/year increases annualized volatility and can reduce exposure.
+        # Inject a fully deterministic, high-frequency volatile trend.
+        # A perfectly smooth series would have near-zero volatility at any scale.
+        for i,bar in enumerate(bars):
+            p=200+i*.08+9*math.sin(i*.31)
+            bar.update(open=p,close=p,high=p+12,low=p-12)
+        # Same candles, different annualization: risk targets must differ.
         short=run(bars,start_at=450,vol_target=.60,bars_per_year=365.)
         actual=run(bars,start_at=450,vol_target=.60,bars_per_year=365*288.)
         self.assertTrue(math.isfinite(short["return_pct"]))
