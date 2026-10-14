@@ -184,10 +184,16 @@ def main():
     parser.add_argument("--bars",type=int,default=1000)
     parser.add_argument("--min-success",type=int,default=12)
     parser.add_argument("--output",required=True)
+    parser.add_argument("--panel",required=False,help="Static FR/EN historical research dashboard")
     a=parser.parse_args()
     out=multi_asset_study(symbols=tuple(a.symbols.split(",")),end=a.end,bars=a.bars)
     file=Path(a.output);file.parent.mkdir(parents=True,exist_ok=True)
     file.write_text(json.dumps(out,indent=2,allow_nan=False),encoding="utf-8")
+    if a.panel:
+        from .capital100_panel import render_capital_panel
+        panel=Path(a.panel)
+        panel.parent.mkdir(parents=True,exist_ok=True)
+        panel.write_text(render_capital_panel(out),encoding="utf-8")
     print(json.dumps({"output":str(file),"successful_assets":out["successful_assets"],
                       "failed_assets":out["failed_assets"],"deployment_gate":"NO_REAL_ORDERS"}))
     if out["successful_assets"]<a.min_success:raise SystemExit("Too few verified assets")
