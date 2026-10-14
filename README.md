@@ -60,3 +60,14 @@ The pinned URL above uses a Git blob SHA, which may not be directly fetchable as
 - No real trading until local legal requirements are verified and the user explicitly authorizes it.
 
 A numeric `10/10` or a `profitable bot` designation is inappropriate until all relevant gates have real evidence.
+
+
+## Expanding-window walk-forward validation
+
+```bash
+cryptolab walk-forward --input data/btc_daily.csv --initial-train 900 --test-size 180 --step 180
+```
+
+For each fold, select volatility target only from earlier historical bars and test it on the next 180 completed daily candles. No portfolio state is carried between folds; both the strategy and passive baseline restart with the same virtual capital. Inspect individual fold results, not just average performance.
+
+**Release blocker:** GitHub Actions status for this change has not been verified; public-data ingestion and live paper execution still need end-to-end checking. Historical returns are hypothetical and not guarantees.
