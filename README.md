@@ -143,3 +143,22 @@ cryptolab paper-vol --symbol BTCUSDT --state data/btc_daily_wallet.json
 - The `--input` mode is an **offline historical replay**, not live paper trading. The API mode fetches public latest 1d data but is NOT deployed as a daemon or scheduled on any VPS.
 - The volatility target is frozen to 60% as an exploratory research assumption, not proof that it improves risk-adjusted returns; historical return advantages disappear under adverse costs.
 - GitHub CI verifies cold start/idempotent rerun on historical CSV; longer prospective operations, exchange feasibility, and legal review remain release blockers.
+
+
+## 15-crypto comparative research dashboard (paper only)
+
+```bash
+python -m cryptolab.universe \
+  --symbols BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,ADAUSDT,DOGEUSDT,LINKUSDT,AVAXUSDT,DOTUSDT,LTCUSDT,TRXUSDT,BCHUSDT,ATOMUSDT,NEARUSDT \
+  --end 2026-09-30 --bars 1000 --first 450 --days 90 --min-success 12 \
+  --output reports/universe_15.json --panel reports/universe_panel.html
+```
+
+Open `reports/universe_panel.html` in a browser. No hosting or JavaScript dependencies required; the panel is an interactive static offline research report (table sorting, search, per-asset chronological folds, transparent advisor regime, cost stress).
+
+- Uses public Binance market-only REST API: fixed common UTC last candle and 1000 completed 1-day bars, with exact chronology checks, SHA-256 for each raw response, and explicit errors for unavailable pairs.
+- Each asset runs the same Volatility Trend model vs spot buy-and-hold with *three* fee/slippage scenarios; never omit failures or equate its advisor's interpretable rule votes with ML probabilities.
+- 15 currently listed assets are **not** 15 statistically independent samples (strong return correlations), and historical selection introduces survivorship bias.
+- Returns are mean per non-overlapping 90-day virtual reset window, not annualized returns. The initial 450 days support indicators; all folds are chronological.
+- The static HTML and JSON are stored as GitHub Actions artifacts. They are **not live dashboards** and do not update until a new research run executes. They do not execute orders.
+- `NO_REAL_ORDERS` remains mandatory; neither spot profitability nor a machine-learned predictive model has been established.

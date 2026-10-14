@@ -8,3 +8,4 @@ reports/*.json
 data/*.zip
 data/*.manifest.json
 data/*.CHECKSUM
+reports/*.html
