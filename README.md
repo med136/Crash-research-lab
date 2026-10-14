@@ -113,3 +113,33 @@ cryptolab audit --input data/binance_eth.csv --first 450 --days 90
 ```
 
 Note: the commands above **do not run automatically on any user's machine**. GitHub Actions on PR #3 verified real January 2025 public Binance BTC and ETH archive downloads and all Python/historical research checks, on 2026-10-14. A 90-day evaluation is exploratory; no live trading.
+
+
+## Daily volatility-trend virtual wallet (paper only, experimental)
+
+The legacy `cryptolab paper` command uses a basic SMA strategy on hourly data.
+**The candidate researched on daily data is implemented separately** as `paper-vol`, to prevent silently substituting one model for the other.
+
+```bash
+# 1. Offline simulation from a verified CSV: creates a state but no historical trades.
+cryptolab paper-vol --symbol BTCUSDT --input data/binance_btc.csv --state data/btc_offline_wallet.json
+
+# 2. Re-run after appending the next completed day in the CSV. Only that new
+# day can change holdings; rerunning identical data never duplicates trades.
+cryptolab paper-vol --symbol BTCUSDT --input data/binance_btc.csv --state data/btc_offline_wallet.json
+
+# 3. Optional public API observation, NO REAL ORDERS. Invoke once daily
+# after the UTC daily candle is closed and published; first run only initializes.
+cryptolab paper-vol --symbol BTCUSDT --state data/btc_daily_wallet.json
+```
+
+### Safety and practical limitations
+
+- **No real crypto trades, private exchange endpoints, exchange API keys, real deposits, leverage, or automated real orders.**
+- First run only initializes from 201+ consecutive completed 1d candles. No retroactive entry is invented.
+- Each later run processes only strictly consecutive, newly completed candles. A missing bar, stale public feed, modified last bar, wrong market, corrupted state, or duplicate active process fails closed.
+- Portfolio snapshots are JSON, written atomically with a lock. A stale `.lock` after a process crash requires human inspection before removal. Use separate state filenames for BTC and ETH; keep this state outside source control.
+- Each next-candle decision is based exclusively on prior completed closes. **Virtual fills at a newly observed daily close are a simplifying assumption, not an executable next-bar-open fill or a real exchange quote.** Do not compare its result directly with the earlier `voltrend.run` backtest without aligning fills and data timestamps.
+- The `--input` mode is an **offline historical replay**, not live paper trading. The API mode fetches public latest 1d data but is NOT deployed as a daemon or scheduled on any VPS.
+- The volatility target is frozen to 60% as an exploratory research assumption, not proof that it improves risk-adjusted returns; historical return advantages disappear under adverse costs.
+- GitHub CI verifies cold start/idempotent rerun on historical CSV; longer prospective operations, exchange feasibility, and legal review remain release blockers.
