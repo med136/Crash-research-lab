@@ -10,7 +10,7 @@ from .exposure import constant_weight
 from .benchmarks import buy_and_hold
 
 def paired_windows(candles, *, first=900, days=180, fee=.001,
-                   slippage=.0005, target=.60):
+                   slippage=.0005, target=.60, bars_per_year=365.):
     validate(candles)
     if first<450 or days<90 or len(candles)<first+days or not 0<target<=1:
         raise ValueError("Insufficient bars or invalid window")
@@ -19,7 +19,7 @@ def paired_windows(candles, *, first=900, days=180, fee=.001,
         end=start+days
         history=candles[:end]
         v=volatility_trend(history,start_at=start,vol_target=target,
-                           fee=fee,slippage=slippage)
+                           fee=fee,slippage=slippage,bars_per_year=bars_per_year)
         passive=buy_and_hold(candles,start,end,fee=fee,slippage=slippage)
         allocations={
             str(weight):constant_weight(candles,start,end,weight=weight,

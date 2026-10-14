@@ -5,6 +5,7 @@ or live execution. Save the output and open directly in a browser.
 """
 from __future__ import annotations
 import json
+from .localize import bilingual_html
 
 
 def render_panel(report: dict) -> str:
@@ -13,7 +14,7 @@ def render_panel(report: dict) -> str:
     # Escape content for inline JS context, even if upstream market data is untrusted.
     raw = json.dumps(report,ensure_ascii=False,allow_nan=False)
     raw = raw.replace("<","\\u003c").replace(">","\\u003e").replace("&","\\u0026").replace("\u2028","\\u2028").replace("\u2029","\\u2029")
-    return """<!doctype html>
+    return bilingual_html("""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -167,4 +168,4 @@ $("filter").addEventListener("input",view);
 $("sort").addEventListener("change",view);
 view();detail();
 </script>
-</body></html>""".replace("__REPORT_DATA__",raw)
+</body></html>""".replace("__REPORT_DATA__",raw))

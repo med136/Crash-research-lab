@@ -61,6 +61,17 @@ jobs:
             --end 2026-09-30 --bars 1000 --first 450 --days 90 --min-success 12 \
             --output reports/universe_15.json --panel reports/universe_panel.html
           python -c "import json; d=json.load(open('reports/universe_15.json')); assert len(d['symbols_requested'])==15 and d['successful_symbols']>=12 and d['deployment_gate']=='NO_REAL_ORDERS'"
+      - name: Evaluate 5m 15m 1h 4h on six major spot pairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cryptolab.timeframes \
+            --symbols BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,DOGEUSDT \
+            --frames 5m,15m,1h,4h --end 2026-09-30 --bars 1000 \
+            --first 450 --window 90 --min-success 20 \
+            --output reports/timeframes_24.json --panel reports/timeframes_panel.html
+          python -c "import json; r=json.load(open('reports/timeframes_24.json')); assert r['successful_markets']>=20 and r['deployment_gate']=='NO_REAL_ORDERS'; assert set(r['frames_requested'])=={'5m','15m','1h','4h'}"
+          python -c "from pathlib import Path; h=Path('reports/timeframes_panel.html').read_text(); assert 'locale-fr' in h and 'locale-en' in h and 'lang=\"fr\"' in h"
       - name: Paired BTC strategy comparison (not deployable)
         run: python -m cryptolab.cli paired --input data/btc_daily.csv > reports/paired.json
       - name: Adverse costs and sign-test diagnostic

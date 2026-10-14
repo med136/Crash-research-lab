@@ -162,3 +162,24 @@ Open `reports/universe_panel.html` in a browser. No hosting or JavaScript depend
 - Returns are mean per non-overlapping 90-day virtual reset window, not annualized returns. The initial 450 days support indicators; all folds are chronological.
 - The static HTML and JSON are stored as GitHub Actions artifacts. They are **not live dashboards** and do not update until a new research run executes. They do not execute orders.
 - `NO_REAL_ORDERS` remains mandatory; neither spot profitability nor a machine-learned predictive model has been established.
+
+
+## FR / EN Dashboard and smaller timeframes (5m / 15m / 1h / 4h)
+
+Both the original 15-crypto 1d panel and the new intraday panel provide a **FR / EN** language switch. **French is the default**; English remains available without network translation or external JavaScript.
+
+The smaller-timeframe research protocol compares six public Binance Spot USDT markets (BTC, ETH, BNB, SOL, XRP, DOGE) over the same *completed UTC cutoff* and 1,000 chronological OHLCV bars **per pair and timeframe**:
+
+```bash
+python -m cryptolab.timeframes \
+  --symbols BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,DOGEUSDT \
+  --frames 5m,15m,1h,4h --end 2026-09-30 \
+  --bars 1000 --first 450 --window 90 --min-success 20 \
+  --output reports/timeframes_24.json --panel reports/timeframes_panel.html
+```
+
+Open `reports/timeframes_panel.html` to filter pairs and frames in French or English. The JSON lists every failed / excluded market.
+
+**Important methodology:** 90 x 5-minute candles cover **7.5 hours**, whereas 90 x 4-hour candles cover **15 days**. Raw per-window returns must **never** be ranked between these different timeframes; only compare each strategy with its same-window benchmark. The technical strategy uses *200/30/30 bars*, not calendar days, for each frame. Its 30-bar log-return volatility is annualized with the correct frequency (5m = 105120 bars/year, 15m = 35040, 1h = 8760, 4h = 2190; 1d = 365).
+
+The test is not a high-frequency live execution simulator: it omits realistic spread dynamics, depth, market impact and partial fills. Small intervals may generate frequent transactions and are sensitive to underestimated fees. Research remains paper-only, without exchange credentials, real orders, or a claim that any algorithm is profitable.
