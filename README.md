@@ -1,25 +1,22 @@
-# Crash Research Lab
+# Crypto AI Trading Lab — Paper Trading MVP
 
-Independent reproducible research into whether past Crash-game multipliers provide useful **out-of-sample** predictive information. This is not a live multiplier oracle, a guaranteed predictor, or a wagering bot.
+This repository has been **repurposed** from Crash Research Lab to a completely separate **crypto market research** project. The repository name remains unchanged until its owner renames it in GitHub Settings.
 
-## First experiment
+Python tool for public completed BTC/ETH OHLCV candles and deterministic **paper-only backtests**. v0.1 uses a transparent moving-average benchmark, not yet an AI model.
 
-The repository contains a CSV validator, synthetic independent multiplier generator, baseline statistical model and a chronological **walk-forward** evaluator in `src/crashlab/walkforward.py`.
-
-For each held-out round `t`, the model sees only observations earlier than `t`. The baseline is the training-set event frequency, while the adaptive model uses the trailing `window` results shrunk toward that fixed baseline. Both are scored on the identical later rounds with Brier scores. A smaller Brier score is better.
-
-## Reproduce
+## Install & test
 
 ```bash
-python -m pip install -e '.[dev]'
-python -m crashlab.cli simulate --rows 2000 --output data/synthetic.csv
-python -m crashlab.cli analyze --input data/synthetic.csv --output report.json
-python -c "from crashlab.core import read_csv; from crashlab.walkforward import walk_forward; print(walk_forward(read_csv('data/synthetic.csv')).as_dict())"
-pytest -q
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+python -m unittest discover -s tests -v
+
+# Requires outbound Internet access:
+cryptolab download --symbol BTCUSDT --interval 1h --output data/btc_1h.csv
+cryptolab backtest --input data/btc_1h.csv --capital 1000
 ```
 
-Expected CSV columns: `round_id,multiplier`, ordered oldest to newest with unique round IDs. Do not upload identifiable/private or unauthorized datasets. No real 1xBet data is included or yet evaluated.
+Uses the public Binance market-data endpoint and omits unfinished candles. Chronological signal on closed candles, next-bar-open hypothetical execution, 0.1% modeled trading fee and 0.05% slippage. Includes comparison to buy-and-hold and maximum drawdown. No exchange accounts, API secrets, live orders, leverage or real money.
 
-## Interpretation
-
-This synthetic model is **not** evidence about how 1xBet generates its outcomes. A positive score difference on one holdout is not evidence of sustained exploitable predictability; it would need multiple truly prospective datasets, confidence intervals, leak checks and replication. No bets, automated cashout, scraping behind access controls or attempts to recover private server seeds are implemented.
+**Research limitations:** Data retrieval is not yet verified from VPS; models have not been validated prospectively. Backtests are not reliable promises of future returns. Review applicable Moroccan regulations before any real financial activity.
