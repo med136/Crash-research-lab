@@ -96,3 +96,20 @@ The `audit` command compares the frozen Volatility Trend benchmark to passive BT
 - PR #2 verified the **historical-validation** job and **Python tests** as successful on the proposed commit (2026-10-14), before merge. Reports are available as the GitHub Actions artifact `btc-research-no-orders`.
 - Full workflow execution verifies computational reproducibility, **not profitability, statistical significance, exchange fill realism, or legal permission for live orders**.
 - Research report: `reports/btc_cost_sensitivity_2026-10-14.md`. Under doubled costs/high slippage the small historical return advantage disappears; real-money deployment remains **NO-GO**.
+
+
+## Verified official Binance SPOT archives (BTC and ETH)
+
+Binance provides free public monthly SPOT 1d ZIP archives and companion `.CHECKSUM` files. A tested importer validates SHA-256, exact UTC daily timestamps, full month completeness, OHLCV values, and the January 2025 switch from milliseconds to microseconds.
+
+```bash
+# Research only; no private API credentials or live orders.
+python -m cryptolab.binance_bulk --symbol BTCUSDT --start 2024-01 --end 2025-12 --output data/binance_btc.csv
+python -m cryptolab.binance_bulk --symbol ETHUSDT --start 2024-01 --end 2025-12 --output data/binance_eth.csv
+
+# The importer generates sidecar manifests containing each archive's verified SHA-256.
+cryptolab paired --input data/binance_btc.csv --first 450 --days 90
+cryptolab audit --input data/binance_eth.csv --first 450 --days 90
+```
+
+Note: the commands above **do not run automatically on any user's machine**. GitHub Actions on PR #3 verified real January 2025 public Binance BTC and ETH archive downloads and all Python/historical research checks, on 2026-10-14. A 90-day evaluation is exploratory; no live trading.
