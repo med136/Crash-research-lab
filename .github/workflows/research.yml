@@ -52,6 +52,15 @@ jobs:
           python -m cryptolab.cli paper-vol --symbol BTCUSDT --state data/btc_virtual_wallet.json --input data/btc_daily.csv > reports/paper_second.json
           cmp reports/paper_first.json reports/paper_second.json
           python -c "import json; p=json.load(open('reports/paper_second.json')); assert p['paper_only'] is True and p['executions']==0 and p['source']=='csv_replay'"
+      - name: Evaluate 15 crypto markets and render static research panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cryptolab.universe \
+            --symbols BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,ADAUSDT,DOGEUSDT,LINKUSDT,AVAXUSDT,DOTUSDT,LTCUSDT,TRXUSDT,BCHUSDT,ATOMUSDT,NEARUSDT \
+            --end 2026-09-30 --bars 1000 --first 450 --days 90 --min-success 12 \
+            --output reports/universe_15.json --panel reports/universe_panel.html
+          python -c "import json; d=json.load(open('reports/universe_15.json')); assert len(d['symbols_requested'])==15 and d['successful_symbols']>=12 and d['deployment_gate']=='NO_REAL_ORDERS'"
       - name: Paired BTC strategy comparison (not deployable)
         run: python -m cryptolab.cli paired --input data/btc_daily.csv > reports/paired.json
       - name: Adverse costs and sign-test diagnostic
@@ -63,6 +72,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: btc-research-no-orders
-          path: reports/*.json
+          path: |
+            reports/*.json
+            reports/*.html
           retention-days: 14
           if-no-files-found: warn
