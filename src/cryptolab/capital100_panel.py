@@ -76,7 +76,7 @@ const cell=(tr,s,cls)=>{const td=document.createElement("td");td.textContent=s;i
 let chosenModel="defensive_ensemble";
 const names={cash:"Cash only",buy_hold:"Buy & Hold",sma20_60:"SMA 20/60",sma50_200:"SMA 50/200",breakout55_20:"Breakout 55/20",volatility_trend:"Volatility Trend",defensive_ensemble:"Defensive ensemble"};
 Object.keys(DATA.assets||{}).forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x;$("asset").appendChild(o)});
-Object.keys(DATA.horizons||{}).forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x.replaceAll("_"," ")+" ("+DATA.horizons[x]+"d)";$("horizon").appendChild(o)});
+Object.keys(DATA.horizons||{}).forEach(x=>{let o=document.createElement("option");o.value=x;const names={"1_month_30d":"1 month (30 days)","3_months_90d":"3 months (90 days)","6_months_180d":"6 months (180 days)","1_year_365d":"1 year (365 days)"};o.textContent=names[x]||x;$("horizon").appendChild(o)});
 (DATA.strategies||[]).forEach(s=>{let o=document.createElement("option");o.value=s;o.textContent=names[s]||s;$("model").appendChild(o)});
 $("model").value=chosenModel;
 $("validated").textContent=DATA.successful_assets+"/"+DATA.assets_requested.length;
