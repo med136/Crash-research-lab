@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crash-research-lab"
+version = "0.1.0"
+description = "Reproducible statistical audit of historical crash multipliers"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+crashlab = "crashlab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
