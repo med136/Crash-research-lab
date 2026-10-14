@@ -95,7 +95,11 @@ def simulate(bars,targets,start,end,*,fee=.001,slippage=.0005,initial=CAPITAL,mi
 def windows(bars,signals,days,fee,slippage):
     if days not in HORIZONS.values():raise ValueError("Unsupported horizon")
     out=[]
-    for start in range(WARMUP,len(bars)-days+1,days):
+    # Align every horizon to the same latest completed candle; discard only
+    # the oldest incomplete leftover window after the 201-bar warmup.
+    count=(len(bars)-WARMUP)//days
+    first=len(bars)-count*days
+    for start in range(first,len(bars)-days+1,days):
         end=start+days
         models={name:simulate(bars,signal,start,end,fee=fee,slippage=slippage)
                 for name,signal in signals.items()}
