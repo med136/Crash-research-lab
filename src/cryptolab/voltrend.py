@@ -8,10 +8,10 @@ import math
 
 def run(candles, *, trend_days=200, momentum_days=30, vol_days=30,
         vol_target=.40, initial=1000., fee=.001, slippage=.0005,
-        start_at=None):
+        start_at=None, bars_per_year=365.):
     warmup=max(trend_days,momentum_days,vol_days+1)+1
     start=max(warmup,start_at or warmup)
-    if len(candles)<=start or initial<=0 or not 0<vol_target<=1:
+    if len(candles)<=start or initial<=0 or not 0<vol_target<=1 or not math.isfinite(bars_per_year) or bars_per_year<=0:
         raise ValueError("Invalid data or target")
     cash=initial; units=0.; peak=initial; max_dd=0.; trades=0
     equity_curve=[]
@@ -22,7 +22,7 @@ def run(candles, *, trend_days=200, momentum_days=30, vol_days=30,
         momentum=closes[-1]/closes[-1-momentum_days]-1
         rets=[math.log(closes[j]/closes[j-1]) for j in range(len(closes)-vol_days,len(closes))]
         mu=sum(rets)/len(rets)
-        annual_vol=math.sqrt(365*sum((r-mu)**2 for r in rets)/len(rets))
+        annual_vol=math.sqrt(bars_per_year*sum((r-mu)**2 for r in rets)/len(rets))
         target=min(1.,vol_target/max(annual_vol,.05)) if closes[-1]>avg and momentum>0 else 0.
         price=candles[i]["open"]
         equity=cash+units*price
