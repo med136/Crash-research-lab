@@ -9,6 +9,7 @@ from .research import evaluate
 from .strategies import select_and_test
 from .walk_forward import walk_forward
 from .stress import stress_test
+from .paired import paired_windows
 from .paper import new_state,apply_new_candles,save_state,load_state,summary
 
 def main():
@@ -23,6 +24,10 @@ def main():
     b.add_argument("--fast",type=int,default=10)
     b.add_argument("--slow",type=int,default=30)
     b.add_argument("--capital",type=float,default=1000)
+    pw=sub.add_parser("paired")
+    pw.add_argument("--input",required=True)
+    pw.add_argument("--first",type=int,default=900)
+    pw.add_argument("--days",type=int,default=180)
     st=sub.add_parser("stress")
     st.add_argument("--input",required=True)
     wf=sub.add_parser("walk-forward")
@@ -52,6 +57,8 @@ def main():
         result=asdict(backtest(load(args.input),initial=args.capital,fast=args.fast,slow=args.slow))
         result.pop("curve")
         print(json.dumps(result,indent=2))
+    elif args.mode=="paired":
+        print(json.dumps(paired_windows(load(args.input),first=args.first,days=args.days),indent=2))
     elif args.mode=="stress":
         print(json.dumps(stress_test(load(args.input)),indent=2))
     elif args.mode=="walk-forward":
