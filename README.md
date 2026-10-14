@@ -1,22 +1,38 @@
-# Crypto AI Trading Lab — Paper Trading MVP
+# Crypto AI Trading Lab — paper-only research
 
-This repository has been **repurposed** from Crash Research Lab to a completely separate **crypto market research** project. The repository name remains unchanged until its owner renames it in GitHub Settings.
+The former Crash Research Lab has been replaced by this independent cryptocurrency trading **research** project. This is not a profitable AI trading bot yet: v0.2 evaluates transparent moving-average benchmarks, with no real-money orders.
 
-Python tool for public completed BTC/ETH OHLCV candles and deterministic **paper-only backtests**. v0.1 uses a transparent moving-average benchmark, not yet an AI model.
-
-## Install & test
+## Install and test
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
 python -m unittest discover -s tests -v
-
-# Requires outbound Internet access:
-cryptolab download --symbol BTCUSDT --interval 1h --output data/btc_1h.csv
-cryptolab backtest --input data/btc_1h.csv --capital 1000
 ```
 
-Uses the public Binance market-data endpoint and omits unfinished candles. Chronological signal on closed candles, next-bar-open hypothetical execution, 0.1% modeled trading fee and 0.05% slippage. Includes comparison to buy-and-hold and maximum drawdown. No exchange accounts, API secrets, live orders, leverage or real money.
+## Genuine data, chronological comparison and backtest
 
-**Research limitations:** Data retrieval is not yet verified from VPS; models have not been validated prospectively. Backtests are not reliable promises of future returns. Review applicable Moroccan regulations before any real financial activity.
+```bash
+cryptolab download --symbol BTCUSDT --interval 1h --output data/btc.csv
+cryptolab evaluate --input data/btc.csv --capital 1000
+cryptolab backtest --input data/btc.csv --fast 10 --slow 30
+```
+
+Market-only Binance API: https://data-api.binance.vision/api/v3/klines (no API key). Historical bulk archive: https://data.binance.vision/. Source availability varies by region; download was not verified in this runtime.
+
+The evaluation tests **four** SMA configurations, chooses parameters using the first 65% of completed candles, and reports performance on the untouched last 35% after simulated fees (0.1%) and slippage (0.05%). Metrics include maximum drawdown and buy-and-hold comparison. A single good holdout does **not** prove profitability.
+
+## Stateful paper portfolio
+
+```bash
+cryptolab paper --symbol BTCUSDT --interval 1h --state data/btc_paper.json --capital 1000
+```
+
+Run once after each hourly candle closes. First invocation initializes a wallet (no imaginary historical trades); later invocations only consume newly completed observations, with missing-bar detection and an atomically persisted local snapshot. Only one writer per state file. Hypothetical fills at subsequent observed completed closes are deliberately distinguished from next-open historical fills.
+
+No leverage, exchange secrets, real orders or deposits. Only run with money-free simulations. Before any actual crypto transactions, consult applicable Moroccan financial rules.
+
+## Release status
+
+Local unit tests: 13 tests passed in the development environment. GitHub CI and live exchange data availability need independent verification. No validated profitable strategy and no AI model have been delivered.
