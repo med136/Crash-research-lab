@@ -65,6 +65,7 @@ class HundredDollarTests(unittest.TestCase):
         for days in HORIZONS.values():
             folds=windows(c,signals,days,.001,.0005)
             self.assertEqual(len(folds),(len(c)-201)//days)
+            self.assertEqual(folds[-1]["end_index"],len(c)-1)
             self.assertTrue(all(a["end_index"]<b["start_index"] for a,b in zip(folds,folds[1:])))
             self.assertEqual(aggregate(folds)["cash"]["worst_final_usd"],100.)
 
