@@ -10,6 +10,7 @@ from .strategies import select_and_test
 from .walk_forward import walk_forward
 from .stress import stress_test
 from .paired import paired_windows
+from .audit_stats import cost_scenarios
 from .paper import new_state,apply_new_candles,save_state,load_state,summary
 
 def main():
@@ -24,6 +25,10 @@ def main():
     b.add_argument("--fast",type=int,default=10)
     b.add_argument("--slow",type=int,default=30)
     b.add_argument("--capital",type=float,default=1000)
+    au=sub.add_parser("audit")
+    au.add_argument("--input",required=True)
+    au.add_argument("--first",type=int,default=900)
+    au.add_argument("--days",type=int,default=180)
     pw=sub.add_parser("paired")
     pw.add_argument("--input",required=True)
     pw.add_argument("--first",type=int,default=900)
@@ -57,6 +62,8 @@ def main():
         result=asdict(backtest(load(args.input),initial=args.capital,fast=args.fast,slow=args.slow))
         result.pop("curve")
         print(json.dumps(result,indent=2))
+    elif args.mode=="audit":
+        print(json.dumps(cost_scenarios(load(args.input),first=args.first,days=args.days),indent=2))
     elif args.mode=="paired":
         print(json.dumps(paired_windows(load(args.input),first=args.first,days=args.days),indent=2))
     elif args.mode=="stress":
