@@ -5,3 +5,6 @@ __pycache__/
 *.egg-info/
 data/*.csv
 reports/*.json
+data/*.zip
+data/*.manifest.json
+data/*.CHECKSUM
