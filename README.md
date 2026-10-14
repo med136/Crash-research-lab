@@ -43,12 +43,12 @@ Local unit tests: 13 tests passed in the development environment. GitHub CI and 
 A publicly published third-party CSV has 3,343 BTC daily candles (2017-08-17 to 2026-10-11); record and SHA in `reports/btc_daily_holdout_2026-10-14.md`.
 
 ```bash
-curl -fL https://raw.githubusercontent.com/jptrustlearning/btc/e633106c023e80f48e404574952ed7b1f8bfe650/btc_prices.csv -o data/btc_source.csv
+curl -fL https://raw.githubusercontent.com/jptrustlearning/btc/37f72830f8267e05b651515e8c3c263ef057d8e7/btc_prices.csv -o data/btc_source.csv
 python -c "from cryptolab.import_daily import import_daily; print(import_daily('data/btc_source.csv','data/btc_daily.csv'))"
 cryptolab evaluate --input data/btc_daily.csv --capital 1000
 ```
 
-The pinned URL above uses a Git blob SHA, which may not be directly fetchable as a Git revision on every Git hosting route; if GitHub returns 404, fetch `main/btc_prices.csv` and verify content against the recorded source blob SHA before comparing results. This is a third-party historical archive, not a live market stream. Use the close-of-day data only after the daily bar has completed.
+The pinned URL uses a **source commit SHA**. Verify the downloaded bytes using `git hash-object data/btc_source.csv`, which must equal `e633106c023e80f48e404574952ed7b1f8bfe650`; refuse to continue if it differs. This is a third-party historical archive, not a live market stream. Use the close-of-day data only after the daily bar has completed.
 
 ## Acceptance gates (not yet passed)
 
@@ -82,3 +82,17 @@ cryptolab paired --input data/btc_daily.csv --first 900 --days 180
 This evaluates the volatility trend model and **signal-free constant BTC allocations (25%, 50%, 75%)**, plus one-entry/one-exit passive BTC in identical chronological 180-bar windows. Costs are applied to all simulated fills. This is a more defensible test of whether trend timing adds more than reduced BTC exposure. The numerical output still requires verification on a clean local checkout and independently sourced prices. Do not call it proof of a profitable edge.
 
 See `reports/exposure_controls_2026-10-14.md` for a historical exploratory comparison and caveats.
+
+
+## Audited costs and historical validation CI (2026-10-14)
+
+```bash
+cryptolab audit --input data/btc_daily.csv --first 900 --days 180
+```
+
+The `audit` command compares the frozen Volatility Trend benchmark to passive BTC across identical 180-day windows in three cost scenarios (base, doubled costs, high slippage); outputs a deterministic JSON report with medians, sign-test diagnostics, bootstrap intervals, exposure controls and a strict `NO_REAL_ORDERS` decision.
+
+- `.github/workflows/research.yml` runs Python tests and downloads the pinned 3343-bar BTC CSV, checks its Git blob fingerprint, imports validated daily bars, then runs `paired`, `audit`, and `walk-forward`.
+- PR #2 verified the **historical-validation** job and **Python tests** as successful on the proposed commit (2026-10-14), before merge. Reports are available as the GitHub Actions artifact `btc-research-no-orders`.
+- Full workflow execution verifies computational reproducibility, **not profitability, statistical significance, exchange fill realism, or legal permission for live orders**.
+- Research report: `reports/btc_cost_sensitivity_2026-10-14.md`. Under doubled costs/high slippage the small historical return advantage disappears; real-money deployment remains **NO-GO**.
