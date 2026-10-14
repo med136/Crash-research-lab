@@ -5,6 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 from .market import download,save,load,INTERVAL_MS
 from .engine import backtest
+from .research import evaluate
 from .paper import new_state,apply_new_candles,save_state,load_state,summary
 
 def main():
@@ -19,6 +20,9 @@ def main():
     b.add_argument("--fast",type=int,default=10)
     b.add_argument("--slow",type=int,default=30)
     b.add_argument("--capital",type=float,default=1000)
+    e=sub.add_parser("evaluate")
+    e.add_argument("--input",required=True)
+    e.add_argument("--capital",type=float,default=1000)
     p=sub.add_parser("paper")
     p.add_argument("--symbol",choices=["BTCUSDT","ETHUSDT"],default="BTCUSDT")
     p.add_argument("--interval",choices=list(INTERVAL_MS),default="1h")
@@ -35,6 +39,8 @@ def main():
         result=asdict(backtest(load(args.input),initial=args.capital,fast=args.fast,slow=args.slow))
         result.pop("curve")
         print(json.dumps(result,indent=2))
+    elif args.mode=="evaluate":
+        print(json.dumps(evaluate(load(args.input),capital=args.capital),indent=2))
     else:
         statepath=Path(args.state)
         candles=download(args.symbol,args.interval)
